@@ -27,7 +27,8 @@ jobs:
       id: scan_image
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: ${{ env.IMAGE_NAME }}
+        #image-ref: ${{ env.IMAGE_NAME }}
+        image-ref: jasonculligan/nmap-in-alpine:latest
         ignore-unfixed: true  # Optional: set to false to capture all vulnerabilities
         format: "table"  # Output format
 
