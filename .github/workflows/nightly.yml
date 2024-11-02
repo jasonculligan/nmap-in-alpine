@@ -7,36 +7,36 @@ on:
 
 jobs:
   pull-and-scan:
+    name: Pull and Scan Image
     runs-on: ubuntu-latest
 
     steps:
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.THE_DOCKER_USER }}
-        password: ${{ secrets.THE_DOCKER_PASS }}
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.THE_DOCKER_USER }}
+          password: ${{ secrets.THE_DOCKER_PASS }}
 
-    - name: Pull Docker image
-      run: |
-        IMAGE_NAME="jasonculligan/nmap-in-alpine:latest"
-        docker pull $IMAGE_NAME
-      env:
-        IMAGE_NAME: jasonculligan/nmap-in-alpine:latest
+      - name: Pull Docker image
+        run: |
+          IMAGE_NAME="jasonculligan/nmap-in-alpine:latest"
+          docker pull $IMAGE_NAME
+        env:
+          IMAGE_NAME: jasonculligan/nmap-in-alpine:latest
 
-    - name: Scan Docker image with Trivy
-      id: scan_image
-      uses: aquasecurity/trivy-action@master
-      with:
-        image-ref: ${{ env.IMAGE_NAME }}
-        ignore-unfixed: true  # Optional: set to false to capture all vulnerabilities
-        format: "table"
-        args: "--exit-code 1"
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: 'jasonculligan/nmap-in-alpine:latest'
+          format: 'table'
+          exit-code: '1'  # Exit with code 1 if vulnerabilities are found
+          ignore-unfixed: true  # Optional: ignore vulnerabilities without a fix
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
 
-    - name: Rebuild and push updated image if vulnerabilities found
-      if: failure()  # Only runs if the previous step fails (exit code 1)
-      run: |
-        # Rebuild the image using the latest base image
-        docker build --no-cache -t $IMAGE_NAME .
-        docker push $IMAGE_NAME
-      env:
-        IMAGE_NAME: jasonculligan/nmap-in-alpine:latest
+      - name: Rebuild and push updated image if vulnerabilities found
+        if: failure()  # Runs only if the previous step fails (exit code 1)
+        run: |
+          # Rebuild the image with the latest base image
+          docker build --no-cache -t jasonculligan/nmap-in-alpine:latest .
+          docker push jasonculligan/nmap-in-alpine:latest
