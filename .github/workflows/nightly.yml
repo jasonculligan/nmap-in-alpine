@@ -31,7 +31,7 @@ jobs:
         image-ref: jasonculligan/nmap-in-alpine:latest
         ignore-unfixed: true  # Optional: set to false to capture all vulnerabilities
         format: "table"  # Output format
-        exit-code: '1'
+        exit-code: '123'
 
     - name: Check if vulnerabilities are found
       id: check_scan
