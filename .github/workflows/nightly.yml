@@ -34,9 +34,31 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH,MEDIUM,LOW'
 
-      - name: Rebuild and push updated image if vulnerabilities found
-        if: failure()  # Runs only if the previous step fails (exit code 1)
-        run: |
-          # Rebuild the image with the latest base image
-          docker build --no-cache -t jasonculligan/nmap-in-alpine:latest .
-          docker push jasonculligan/nmap-in-alpine:latest
+      - name: Check if vulnerabilities are found
+      id: check_scan
+      run: |
+        # Fail the job if vulnerabilities were found
+        if [[ "${{ steps.scan_image.outputs.results }}" != "" ]]; then
+          echo "Vulnerabilities found!"
+          echo "needs_rebuild=true" >> $GITHUB_ENV
+        else
+          echo "No vulnerabilities found."
+          echo "needs_rebuild=false" >> $GITHUB_ENV
+        fi
+
+    - name: Build and push Docker image
+      if: env.needs_rebuild == 'true'
+      id: push
+      uses: docker/build-push-action@v3b5e8027fcad23fda98b2e3ac259d8d67585f671
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: your-registry/your-image-name:latest
+
+      #- name: Rebuild and push updated image if vulnerabilities found
+      #  if: failure()  # Runs only if the previous step fails (exit code 1)
+      #  run: |
+      #    # Rebuild the image with the latest base image
+      #    #docker build --no-cache -t jasonculligan/nmap-in-alpine:latest .
+      #    #docker push jasonculligan/nmap-in-alpine:latest
