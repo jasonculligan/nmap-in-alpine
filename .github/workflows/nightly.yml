@@ -30,15 +30,14 @@ jobs:
       with:
         #image-ref: ${{ env.IMAGE_NAME }}
         image-ref: jasonculligan/nmap-in-alpine:latest
-        ignore-unfixed: true  # Optional: set to false to capture all vulnerabilities
-        format: "table"  # Output format
+        format: "table"
         exit-code: '123'
+
 
     - name: Check if vulnerabilities are found
       id: check_scan
       run: |
-        # Fail the job if vulnerabilities were found
-        if [[ "${{ steps.scan_image.outputs.results }}" != "" ]]; then
+        if [[ "${{ steps.scan_image.outcome }}" == "failure" ]]; then
           echo "Vulnerabilities found!"
           echo "needs_rebuild=true" >> $GITHUB_ENV
         else
