@@ -32,6 +32,7 @@ jobs:
         image-ref: jasonculligan/nmap-in-alpine:latest
         format: "table"
         exit-code: '123'
+        severity: 'CRITICAL,HIGH'
 
     - name: Check if vulnerabilities are found
       id: check_scan
