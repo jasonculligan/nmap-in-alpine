@@ -52,7 +52,7 @@ jobs:
       id: push
       uses: docker/build-push-action@v6
       with:
-        context: .
+        #context: .
         file: ./Dockerfile
         push: true
         tags: jasonculligan/nmap-in-alpine:latest
